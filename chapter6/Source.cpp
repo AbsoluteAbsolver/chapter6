@@ -2,7 +2,7 @@
 //
 // This is example code from Chapter 6.7 "Trying the second version" of
 // "Software - Principles and Practice using C++" by Bjarne Stroustrup
-//
+// hello
 
 /*
     This file is known as calculator02buggy.cpp
