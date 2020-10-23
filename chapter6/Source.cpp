@@ -13,7 +13,7 @@
     First try to find an remove the bugs without looking in the book.
     If that gets tedious, compare the code to that in the book (or posted source code)
 
-    Happy hunting!
+    Happy hunting! xc
 
 */
 

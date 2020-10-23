@@ -7,7 +7,9 @@
 //	error message if a name is entered twice.Write out all the(name, score)
 //	pairs, one per line.
 //Define a class Name_value that holds a string and a value. Rework exercise
-//19 in Chapter 4 to use a vector<Name_value> instead of two vectors.
+//19 in Chapter 4 to use a vector<Name_value> instead of two vectors. xc
+
+#include "../../std_lib_facilities.h"
 
 class Name_value {
 public:
@@ -21,8 +23,12 @@ int main()
 try
 {
 	vector<Name_value> names;
-	while ((cin >> name >> score) && (name != 'Noname' || score != 0)) {
-		if (!cin) error('incorrect input');
+	string name;
+	int score;
+
+	cout << "Hello" << '\n';
+	while ((cin >> name >> score) && (name != "Noname" || score != 0)) {
+		if (!cin) error("incorrect input");
 	}
 }
 
