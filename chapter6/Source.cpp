@@ -2,7 +2,7 @@
 //
 // This is example code from Chapter 6.7 "Trying the second version" of
 // "Software - Principles and Practice using C++" by Bjarne Stroustrup
-//
+// hello adjusting from laptop
 
 /*
     This file is known as calculator02buggy.cpp
@@ -79,7 +79,8 @@ Token Token_stream::get()
     switch (ch) {
     case '=':    // for "print"
     case 'x':    // for "quit"
-    case '(': case ')': case '+': case '-': case '*': case '/': case '{': case '}':
+    case '(': case ')': case '+': case '-': case '*': case '/': case '{':
+    case '}': case '!':
         return Token(ch);        // let each character represent itself
     case '.':
     case '0': case '1': case '2': case '3': case '4':
@@ -106,23 +107,53 @@ double expression();    // declaration so that primary() can call expression()
 
 //------------------------------------------------------------------------------
 
-// deal with numbers and parentheses
+//calculates factorial of numbers only valid for 0 and positive numbers
+int factorial(int n) {
+    if (n < 0) error("negative number for factorial");
+    if (n == 0) {
+        return 1;
+    }
+    else return n * factorial(n - 1);
+}
+
+//------------------------------------------------------------------------------
+
+// deal with numbers and parentheses and factorials
 double primary()
 {
     Token t = ts.get();
+    double left;
+
     switch (t.kind) {
     case '(': case '{':    // handle '(' expression ')'
     {
         double d = expression();
         t = ts.get();
         // ERROR.4.syntax if (t.kind != ')') error("')' expected);
-        if (t.kind == ')' || t.kind == '}') return d;
+        if (t.kind == ')' || t.kind == '}') {
+            left = d; 
+            break;
+        }
         error("')' or '}' expected");
+
     }
     case '8':            // we use '8' to represent a number
-        return t.value;  // return the number's value
+        //double val = t.value;
+        //t = ts.get();
+        //if (t.kind == '!')
+        left = t.value;  // return the number's value
+        break;
     default:
         error("primary expected");
+    }
+
+    while (true) {
+        t = ts.get();
+        if (t.kind == '!') left = factorial(int(left));
+        else {
+            ts.putback(t);
+            return left;
+        }
     }
 }
 
