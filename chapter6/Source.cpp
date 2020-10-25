@@ -21,7 +21,6 @@
 
 //------------------------------------------------------------------------------
 
-// ERROR.1.syntax lass Token {
 class Token {
 public:
     char kind;        // what kind of token
@@ -64,7 +63,6 @@ void Token_stream::putback(Token t)
 
 //------------------------------------------------------------------------------
 
-// ERROR.2.syntax Token get()
 Token Token_stream::get()
 {
     if (full) {       // do we already have a Token ready?
@@ -130,7 +128,6 @@ double primary()
     case '(': case '{': {    // handle '(' expression ')'
         double d = expression();
         t = ts.get();
-        // ERROR.4.syntax if (t.kind != ')') error("')' expected);
         if (t.kind == ')' || t.kind == '}') {
             left = d;
             break;
@@ -174,7 +171,6 @@ double term()
         case '*':
             left *= primary();
             t = ts.get();
-            // ERROR.5.logic no break;
             break;
         case '/':
         {
@@ -204,7 +200,6 @@ double term()
 // deal with + and -
 double expression()
 {
-    // ERROR.6.syntax double left = term(;      // read and evaluate a Term
     double left = term();      // read and evaluate a Term
     Token t = ts.get();        // get the next token from token stream
 
