@@ -80,7 +80,7 @@ Token Token_stream::get()
     case '=':    // for "print"
     case 'x':    // for "quit"
     case '(': case ')': case '+': case '-': case '*': case '/': case '{':
-    case '}': case '!':
+    case '}': case '!': case '%':
         return Token(ch);        // let each character represent itself
     case '.':
     case '0': case '1': case '2': case '3': case '4':
@@ -126,17 +126,17 @@ double primary()
 {
     Token t = ts.get();
     double left;
-    double d;
     switch (t.kind) {
-    case '(': case '{':    // handle '(' expression ')'
-        d = expression();
+    case '(': case '{': {    // handle '(' expression ')'
+        double d = expression();
         t = ts.get();
         // ERROR.4.syntax if (t.kind != ')') error("')' expected);
         if (t.kind == ')' || t.kind == '}') {
-            left = d; 
+            left = d;
             break;
         }
         error("')' or '}' expected");
+    }
     case '8':            // we use '8' to represent a number
         left = t.value;  // return the number's value
         break;
@@ -183,6 +183,14 @@ double term()
             left /= d;
             t = ts.get();
             break;
+        }
+        case '%':
+        { 
+         double d = primary();
+        if (d == 0) error("divide by zero");
+        left = fmod(left, d);
+        t = ts.get();
+        break;
         }
         default:
             ts.putback(t);     // put t back into the token stream
