@@ -18,7 +18,11 @@
 */
 
 #include "../../std_lib_facilities.h"
-
+const char number = '8'; // t.kind==number means that t is a number Token
+const char quit = 'x'; // t.kind==quit means that t is a quit Token
+const char print = '='; // t.kind==print means that t is a print Token
+const string prompt = "> ";
+const string result = "= "; // used to indicate that what follows is a result
 //------------------------------------------------------------------------------
 
 class Token {
@@ -38,6 +42,7 @@ public:
     Token_stream();   // make a Token_stream that reads from cin
     Token get();      // get a Token (get() i  s defined elsewhere)
     void putback(Token t);    // put a Token back
+    void ignore(char c); // discard characters up to and including a c
 private:
     bool full;        // is there a Token in the buffer?
     Token buffer;     // here is where we keep a Token put back using putback()
@@ -45,9 +50,24 @@ private:
 
 //------------------------------------------------------------------------------
 
-// The constructor just sets full to indicate that the buffer is empty:
+void Token_stream::ignore(char c)
+// c represents the kind of Token
+{
+    // first look in buffer:
+    if (full && c == buffer.kind) {
+        full = false;
+        return;
+    }
+    full = false;
+    // now search input:
+    char ch = 0;
+    while (cin >> ch)
+        if (ch == c) return;
+}
+
+// the constructor just sets full to indicate that the buffer is empty:
 Token_stream::Token_stream()
-    :full(false), buffer(0)    // no Token in buffer
+    :full(false), buffer(0)    // no token in buffer
 {
 }
 
@@ -75,10 +95,15 @@ Token Token_stream::get()
     cin >> ch;    // note that >> skips whitespace (space, newline, tab, etc.)
 
     switch (ch) {
-    case '=':    // for "print"
-    case 'x':    // for "quit"
-    case '(': case ')': case '+': case '-': case '*': case '/': case '{':
-    case '}': case '!': case '%':
+    case print:    // for "print"
+    case quit:    // for "quit"
+    case '(': case ')': 
+    case '+': case '-': 
+    case '*': case '/': 
+    case '{':
+    case '}': 
+    case '!': 
+    case '%':
         return Token(ch);        // let each character represent itself
     case '.':
     case '0': case '1': case '2': case '3': case '4':
@@ -88,7 +113,7 @@ Token Token_stream::get()
         cin.putback(ch);         // put digit back into the input stream
         double val;
         cin >> val;              // read a floating-point number
-        return Token('8', val);   // let '8' represent "a number"
+        return Token(number, val);   // let '8' represent "a number"
     }
     default:
         error("Bad token");
@@ -134,14 +159,14 @@ double primary()
         }
         error("')' or '}' expected");
     }
-    case '8':            // we use '8' to represent a number
+    case number:         
         left = t.value;  // return the number's value
         break;
-    case '-':            // we use '8' to represent a number
-        left = -primary();  // return the number's value
+    case '-':            // if negetive return negative of the primary
+        left = -primary();  
         break;
-    case '+':            // we use '8' to represent a number
-        left = primary();  // return the number's value
+    case '+':            
+        left = primary();  
         break;
     default:
         error("primary expected");
@@ -223,20 +248,37 @@ double expression()
 
 //------------------------------------------------------------------------------
 
+void clean_up_mess()
+{
+    ts.ignore(print);
+}
+
+//------------------------------------------------------------------------------
+
+void calculate() // expression evaluation loop
+{
+    while (cin) {
+        try {
+            cout << prompt;
+            Token t = ts.get();
+            while (t.kind == print) t = ts.get(); // first discard all “prints”
+            if (t.kind == quit) return;
+            ts.putback(t);
+            cout << result << expression() << '\n';
+        }
+        catch (exception& e) {
+            cerr << e.what() << '\n'; // write error message
+            clean_up_mess();
+        }
+    }
+}
+
+//------------------------------------------------------------------------------
+
 int main()
 try
 {
-    while (cin) {
-        cout << "> ";
-        Token t = ts.get();
-        while (t.kind == '=') t = ts.get(); // eat ‘;’
-        if (t.kind == 'x') {
-            keep_window_open();
-            return 0;
-        }
-        ts.putback(t);
-        cout << "= " << expression() << '\n';
-    }
+    calculate();
     keep_window_open();
     return 0;
 }
