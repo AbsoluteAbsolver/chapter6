@@ -126,11 +126,10 @@ double primary()
 {
     Token t = ts.get();
     double left;
-
+    double d;
     switch (t.kind) {
     case '(': case '{':    // handle '(' expression ')'
-    {
-        double d = expression();
+        d = expression();
         t = ts.get();
         // ERROR.4.syntax if (t.kind != ')') error("')' expected);
         if (t.kind == ')' || t.kind == '}') {
@@ -138,21 +137,18 @@ double primary()
             break;
         }
         error("')' or '}' expected");
-    }
     case '8':            // we use '8' to represent a number
         left = t.value;  // return the number's value
         break;
     case '-':            // we use '8' to represent a number
-        t = ts.get();
-        left = -t.value;  // return the number's value
+        left = -primary();  // return the number's value
         break;
     case '+':            // we use '8' to represent a number
-        t = ts.get();
-        left = -t.value;  // return the number's value
+        left = primary();  // return the number's value
         break;
     default:
         error("primary expected");
-    }
+    
 
 }
     while (true) {
