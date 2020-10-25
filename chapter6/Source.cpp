@@ -25,6 +25,12 @@ const string prompt = "> ";
 const string result = "= "; // used to indicate that what follows is a result
 //------------------------------------------------------------------------------
 
+class Variable {
+public:
+    string name;
+    double value;
+};
+
 class Token {
 public:
     char kind;        // what kind of token
