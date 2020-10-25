@@ -37,7 +37,7 @@ public:
 class Token_stream {
 public:
     Token_stream();   // make a Token_stream that reads from cin
-    Token get();      // get a Token (get() is defined elsewhere)
+    Token get();      // get a Token (get() i  s defined elsewhere)
     void putback(Token t);    // put a Token back
 private:
     bool full;        // is there a Token in the buffer?
@@ -107,8 +107,11 @@ double expression();    // declaration so that primary() can call expression()
 
 //------------------------------------------------------------------------------
 
-//calculates factorial of numbers only valid for 0 and positive numbers
-int factorial(int n) {
+//calculates factorial of numbers only valid for 0 and positive integers
+int factorial(double val) {
+    int n = int(val);
+    double intpart;
+    if (modf(val, &intpart) != 0.0) error("number is not an int before factorial");
     if (n < 0) error("negative number for factorial");
     if (n == 0) {
         return 1;
@@ -123,11 +126,10 @@ double primary()
 {
     Token t = ts.get();
     double left;
-
+    double d;
     switch (t.kind) {
     case '(': case '{':    // handle '(' expression ')'
-    {
-        double d = expression();
+        d = expression();
         t = ts.get();
         // ERROR.4.syntax if (t.kind != ')') error("')' expected);
         if (t.kind == ')' || t.kind == '}') {
@@ -135,21 +137,23 @@ double primary()
             break;
         }
         error("')' or '}' expected");
-
-    }
     case '8':            // we use '8' to represent a number
-        //double val = t.value;
-        //t = ts.get();
-        //if (t.kind == '!')
         left = t.value;  // return the number's value
+        break;
+    case '-':            // we use '8' to represent a number
+        left = -primary();  // return the number's value
+        break;
+    case '+':            // we use '8' to represent a number
+        left = primary();  // return the number's value
         break;
     default:
         error("primary expected");
-    }
+    
 
+}
     while (true) {
         t = ts.get();
-        if (t.kind == '!') left = factorial(int(left));
+        if (t.kind == '!') left = factorial(left);
         else {
             ts.putback(t);
             return left;
@@ -219,35 +223,28 @@ double expression()
 int main()
 try
 {
-    cout << "Welcome to our simple calculator.\n"
-        << "Please enter expressions using floating-point numbers.\n"
-        << "(Currently +, -, *, /, and () are supported.)\n"
-        << "Evaluate the expression with = at the end. Enter x to quit.\n";
-
-    // ERROR.8.syntax No val variable declared
-    double val = 0;
     while (cin) {
+        cout << "> ";
         Token t = ts.get();
-
-        if (t.kind == 'x') break; // 'q' for quit
-        if (t.kind == '=') {      // ';' for "print now"
-            cout << "=" << val << '\n';
+        while (t.kind == '=') t = ts.get(); // eat ‘;’
+        if (t.kind == 'x') {
+            keep_window_open();
+            return 0;
         }
-        else {
-            ts.putback(t);
-        val = expression();
-        }
+        ts.putback(t);
+        cout << "= " << expression() << '\n';
     }
     keep_window_open();
+    return 0;
 }
 catch (exception& e) {
     cerr << "error: " << e.what() << '\n';
-    keep_window_open();
+    keep_window_open("``");
     return 1;
 }
 catch (...) {
     cerr << "Oops: unknown exception!\n";
-    keep_window_open();
+    keep_window_open("``");
     return 2;
 }
 
